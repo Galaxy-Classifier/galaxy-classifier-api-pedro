@@ -1,0 +1,24 @@
+{
+  "name": "galaxy-classifier-api-pedro",
+  "version": "1.0.0",
+  "description": "api gateway, express, grpc",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Galaxy-Classifier/galaxy-classifier-api-pedro.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "grpc"
+  ],
+  "author": "rcvt, vmma",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Galaxy-Classifier/galaxy-classifier-api-pedro/issues"
+  },
+  "homepage": "https://github.com/Galaxy-Classifier/galaxy-classifier-api-pedro#readme"
+}
