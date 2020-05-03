@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "api gateway, express, grpc",
   "main": "index.js",
+  "engines": {
+    "node": "12.6.3"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -20,5 +23,14 @@
   "bugs": {
     "url": "https://github.com/Galaxy-Classifier/galaxy-classifier-api-pedro/issues"
   },
-  "homepage": "https://github.com/Galaxy-Classifier/galaxy-classifier-api-pedro#readme"
+  "homepage": "https://github.com/Galaxy-Classifier/galaxy-classifier-api-pedro#readme",
+  "dependencies": {
+    "body-parser": "1.19.0",
+    "bull": "3.13.0",
+    "cors": "2.8.5",
+    "express": "4.17.1",
+    "grpc": "1.24.2",
+    "helmet": "3.22.0",
+    "multer": "1.4.2"
+  }
 }
