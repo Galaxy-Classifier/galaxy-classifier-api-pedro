@@ -1,0 +1,57 @@
+version: "3.8"
+services:
+
+    valentina:
+        build: {path_to_valentina_dockerfile}
+        networks: valentinanet
+    
+    pedro:
+        build: {path_to_pedro_dockerfile}
+        depends_on: 
+            - valentina
+            - sofia
+            - database
+            - redis
+        ports:
+            - "5001:5001"
+        networks:
+            - persistence
+            - sofianet
+            - valentinanet
+        environment: 
+            - POSTGRESQL_USERNAME=
+            - POSTGRESQL_PASSWORD=
+            - POSTGRESQL_DATABASE=
+            - REDIS_PASSWORD=
+            - VALENTINA_PORT=
+            - SOFIA_PORT=
+    
+    sofia:
+        build: {path_to_sofia_dockerfile}
+        networks: sofianet
+    
+    database:
+        image: bitnami/postgresql:12.3.0
+        environment: 
+            - POSTGRESQL_USERNAME=
+            - POSTGRESQL_PASSWORD=
+            - POSTGRESQL_DATABASE=
+        ports:
+            - "5432:5432"
+        networks: persistence
+    
+    redis:
+        image: bitnami/redis:5.0.9
+        environment:
+            - REDIS_PASSWORD=
+        networks: persistence
+
+networks:
+    persistence:
+        driver: bridge
+    sofianet:
+        driver: bridge
+    valentinanet:
+        driver: bridge
+
+volumes:
