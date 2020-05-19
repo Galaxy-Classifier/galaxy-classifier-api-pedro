@@ -1,13 +1,22 @@
 const endpoints = require('../endpoints');
 const handlers = require('../handlers');
+const { createGrpcClients } = require('./grpcLoader');
 
-function setRouter(expressApp) {
+function setRouter(expressApp, logger) {
   const endpointKeys = Reflect.ownKeys(endpoints);
+  const grpcClients = createGrpcClients(logger);
+
+  const addGrpcClients = (req, res, next) => {
+    req.grpcClients = grpcClients;
+    return next();
+  };
   
   for (const endpointKey of endpointKeys) {
     const { handler, verb, middlewares } = endpoints[endpointKey];
 
-    expressApp[verb](endpointKey, middlewares, handlers[handler]);
+    logger.info(`Loading endpoint: ${verb} ${endpointKey}`);
+
+    expressApp[verb](endpointKey, [addGrpcClients, ...middlewares], handlers[handler]);
   }
 }
 

@@ -1,8 +1,11 @@
 FROM node:12.16.3-stretch
 
-WORKDIR /usr/src/app
+RUN mkdir -p /usr/src/app
 COPY . /usr/src/app
+WORKDIR /usr/src/app
 
 RUN npm ci
+RUN npm i -g pm2
 
-CMD ["npm", "start"]
+
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]

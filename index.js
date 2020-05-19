@@ -1,3 +1,5 @@
+const logger = require('./logger');
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -10,10 +12,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-setRouter(app);
+setRouter(app, logger);
 
 const { SERVER_PORT } = process.env;
-const serverPort = SERVER_PORT || 3000;
+const serverPort = SERVER_PORT || 5001;
 
 app.listen(serverPort);
-console.info(`Listening on port: ${serverPort}`);
+logger.info(`Pedro is alive @ ${serverPort}`);
