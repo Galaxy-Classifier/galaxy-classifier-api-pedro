@@ -1,4 +1,5 @@
 const logger = require('./logger');
+require('./loader/grpcLoader');
 
 const express = require('express');
 const cors = require('cors');
@@ -19,3 +20,7 @@ const serverPort = SERVER_PORT || 5001;
 
 app.listen(serverPort);
 logger.info(`Pedro is alive @ ${serverPort}`);
+
+process.on('exit', (code) => {
+  logger.info(`NODE PROCESS EXITED WITH CODE ${code}`);
+});

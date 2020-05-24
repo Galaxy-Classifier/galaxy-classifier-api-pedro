@@ -1,49 +1,49 @@
-/**
- * This file is in charge of:
- * - Creating the gRPC client.
- * - Loading the gRPC services.
- * 
- * Returns the gRPC client.
- */
-
 const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
 const fs = require('fs');
 const path = require('path');
-const clients = require('../protos/clients');
+const logger = require('../logger');
+const services = require('../protos/services.json');
 
-function getProtos(logger) {
-  const protoPath = path.join(__dirname, '../', 'protos');
-  const protos = fs.readdirSync(protoPath, { encoding: 'utf-8' }).filter((value) => value.split('.').pop() === 'proto');
+const PROTO_PATH = path.join(__dirname, '../', 'protos');
+const PROTOS = fs.readdirSync(PROTO_PATH, { encoding: 'utf-8' }).filter((value) => value.split('.').pop() === 'proto');
+logger.info(`Protos found: ${PROTOS}`);
 
-  logger.info(`Protos found: ${protos}`);
+/**
+ * This function returns a gRPC Object used to invoke gRPC services. The proto file must be defined and the corresponding variables too.
+ * @param {string} serviceName - This variable should correspond to the property "name" in protos/services.json
+ */
+function getGrpcClientByServiceName(serviceName) {
+  const foundService = services.find(item => (item.name === serviceName));
+  if (!foundService) {
+    logger.error(`Requested proto load ${serviceName} was not defined as a service, exiting process.`);
+    process.exit(1);
+  }
 
-  return protos.map((proto) => path.join(protoPath, proto));
+  const protoPath = path.join(PROTO_PATH, foundService.fileName);
+  if (!fs.existsSync(protoPath)) {
+    logger.error(`Requested proto load ${serviceName} does not exists, exiting process.`);
+    process.exit(1);
+  }
+
+  const packageDefinition = protoLoader.loadSync(protoPath, {
+    keepCase: true,
+    longs: String,
+    enums: String,
+    defaults: true,
+    oneofs: true
+  });
+
+  const servicePort = process.env[`${foundService.envPrefix}_PORT`];
+  const serviceHost = process.env[`${foundService.envPrefix}_HOST`];
+
+  if (!servicePort || !serviceHost) {
+    logger.error(`Service ${serviceName} port or host were not defined in the environment variables, exiting the process.`);
+    process.exit(1);
+  }
+
+  const grpcLoadedProto = grpc.loadPackageDefinition(packageDefinition);
+  return new grpcLoadedProto[foundService.package][foundService.name](`${serviceHost}:${servicePort}`, grpc.credentials.createInsecure());
 }
 
-module.exports = {
-  createGrpcClients(logger) {
-    const protos = getProtos(logger);
-
-    const grpcClients = {};
-    for (const client of clients) {
-      const proto = protos.find(element => (element.includes(client.fileName)));
-      const packageDefinition = protoLoader.loadSync(proto, {
-        keepCase: true,
-        longs: String,
-        enums: String,
-        defaults: true,
-        oneofs: true
-      });
-      const grpcLoadedProto = grpc.loadPackageDefinition(packageDefinition);
-
-      const servicePort = process.env[`${client.envPrefix}_PORT`];
-      const serviceHost = process.env[`${client.envPrefix}_HOST`];
-      logger.info(`Creating proto client: ${client.name}`);
-
-      grpcClients[client.name] = new grpcLoadedProto[client.package][client.name](`${serviceHost}:${servicePort}`, grpc.credentials.createInsecure());
-    }
-
-    return grpcClients;
-  },
-};
+module.exports = getGrpcClientByServiceName;
