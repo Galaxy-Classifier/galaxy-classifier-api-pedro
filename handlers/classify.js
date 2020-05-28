@@ -1,4 +1,6 @@
-const resizePictures = require('../grpcHandlers/valentina');
+const { v4: uuidv4 } = require('uuid');
+const { addSessionData } = require('../helpers/sessionData');
+const PredictionsQueue = require('../loader/bullLoader');
 
 module.exports = {
   /**
@@ -8,18 +10,10 @@ module.exports = {
    * @param {Object} response - The Express response handler.
    */
   async predict(request, response) {
-    const { files } = request;
+    const sessionId = uuidv4();
 
-    const imageRequest = [];
-    for (const file of files) {
-      imageRequest.push({ id: file.originalname, chunk_data: file.buffer })
-    }
+    addSessionData(request, response, sessionId);
 
-    const data = await resizePictures(imageRequest, request.ctx.logger);
-    if (data.error) {
-      return response.status(503).json({ message: 'Our servers could not respond.' });
-    }
-
-    return response.status(200).json({ data });
+    PredictionsQueue.add({ sessionId });
   }
 };
