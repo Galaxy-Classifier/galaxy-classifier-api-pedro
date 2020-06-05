@@ -8,7 +8,8 @@ module.exports = {
       'NODE_ENV': 'development',
       'SERVER_PORT': '5001',
       'VALENTINA_PORT': '4001',
-      'VALENTINA_HOST': 'valentina'
+      'VALENTINA_HOST': 'valentina',
+      'MAX_CONCURRENT_JOBS': 10,
     },
     env_production: {
       'NODE_ENV': 'production',
